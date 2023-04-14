@@ -38,7 +38,8 @@ if (!defined("WHMCS")) {
 
 use WHMCS\Domains\DomainLookup\ResultsList;
 use WHMCS\Domains\DomainLookup\SearchResult;
-use WHMCS\Module\Registrar\Registrarmodule\ApiClient;
+use WHMCS\Module\Registrar\Pandi\ApiClient;
+use WHMCS\Module\Registrar\Pandi\Log;
 
 // Require any libraries needed for the module to function.
 // require_once __DIR__ . '/path/to/library/loader.php';
@@ -56,7 +57,7 @@ use WHMCS\Module\Registrar\Registrarmodule\ApiClient;
 function pandi_MetaData()
 {
     return array(
-        'DisplayName' => 'Pandi Registrar',
+        'DisplayName' => 'INA17',
         'APIVersion' => '1.1',
     );
 }
@@ -158,7 +159,9 @@ function pandi_getConfigArray()
  */
 function pandi_RegisterDomain($params)
 {
-    // _pandiepp_log("RegisterDomain", $params);
+    Log::write('--- RegisterDomain ---');
+    Log::write('Params: ' . json_encode($params));
+    // die();
 
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
@@ -301,6 +304,8 @@ function pandi_RegisterDomain($params)
         );
 
     } catch (\Exception $e) {
+        Log::write('Error: ' . $e->getMessage());
+
         return array(
             'error' => $e->getMessage(),
         );
@@ -325,6 +330,9 @@ function pandi_RegisterDomain($params)
  */
 function pandi_TransferDomain($params)
 {
+    Log::write('--- pandi_GetNameservers ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -488,6 +496,9 @@ function pandi_TransferDomain($params)
  */
 function pandi_RenewDomain($params)
 {
+    Log::write('--- pandi_RenewDomain ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -557,6 +568,9 @@ function pandi_RenewDomain($params)
  */
 function pandi_GetNameservers($params)
 {
+    Log::write('--- pandi_GetNameservers ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -610,6 +624,9 @@ function pandi_GetNameservers($params)
  */
 function pandi_SaveNameservers($params)
 {
+    Log::write('--- pandi_GetNameservers ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -670,6 +687,9 @@ function pandi_SaveNameservers($params)
  */
 function pandi_GetContactDetails($params)
 {
+    // _pandiepp_log("GetContactDetails", $params);
+    Log::write('--- pandi_GetContactDetails ---');
+    Log::write('Params: ' . json_encode($params));
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -691,8 +711,14 @@ function pandi_GetContactDetails($params)
     );
 
     try {
-        $api = new ApiClient();
-        $api->call('GetWhoisInformation', $postfields);
+        // $api = new ApiClient();
+        // $api->call('GetWhoisInformation', $postfields);
+
+        return [
+            'Registrant' => [
+                'First Name' => ''
+            ]
+        ];
 
         return array(
             'Registrant' => array(
@@ -775,6 +801,9 @@ function pandi_GetContactDetails($params)
  */
 function pandi_SaveContactDetails($params)
 {
+    Log::write('--- pandi_SaveContactDetails ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -860,7 +889,8 @@ function pandi_SaveContactDetails($params)
  */
 function pandi_CheckAvailability($params)
 {
-    _pandiepp_log("Masuk CheckAvailability", json_encode($params));
+    Log::write('--- pandi_CheckAvailability ---');
+    Log::write('Params: ' . json_encode($params));
 
     $reqBody = [
         'domainName' => $params['sld']
@@ -884,13 +914,15 @@ function pandi_CheckAvailability($params)
     ));
     
     $response = curl_exec($curl);
+    Log::write($response);
     
     curl_close($curl);
     // echo $response;
 
-    _pandiepp_log("response CheckAvailability", $response);
+    Log::write('Response: ' . $response);
 
     $response = json_decode($response, true);
+
 
     if ($response['code'] == 400) {
         return ['error' => $response['message']];
@@ -947,6 +979,8 @@ function pandi_CheckAvailability($params)
  * @return array of Configuration Options
  */
 function pandi_DomainSuggestionOptions() {
+    Log::write('--- pandi_DomainSuggestionOptions ---');
+    
     return array(
         'includeCCTlds' => array(
             'FriendlyName' => 'Include Country Level TLDs',
@@ -973,7 +1007,8 @@ function pandi_DomainSuggestionOptions() {
  */
 function pandi_GetDomainSuggestions($params)
 {
-    // _pandiepp_log("Masuk GetDomainSuggestions", json_encode($params));
+    Log::write('--- pandi_GetDomainSuggestions ---');
+    Log::write('Params: ' . json_encode($params));
 
     $results = new ResultsList();
 
@@ -1087,6 +1122,9 @@ function pandi_GetDomainSuggestions($params)
  */
 function pandi_GetRegistrarLock($params)
 {
+    Log::write('--- pandi_GetRegistrarLock ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1135,6 +1173,9 @@ function pandi_GetRegistrarLock($params)
  */
 function pandi_SaveRegistrarLock($params)
 {
+    Log::write('--- pandi_SaveRegistrarLock ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1184,6 +1225,9 @@ function pandi_SaveRegistrarLock($params)
  */
 function pandi_GetDNS($params)
 {
+    Log::write('--- pandi_GetDNS ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1236,6 +1280,9 @@ function pandi_GetDNS($params)
  */
 function pandi_SaveDNS($params)
 {
+    Log::write('--- pandi_SaveDNS ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1285,6 +1332,9 @@ function pandi_SaveDNS($params)
  */
 function pandi_IDProtectToggle($params)
 {
+    Log::write('--- pandi_IDProtectToggle ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1342,6 +1392,9 @@ function pandi_IDProtectToggle($params)
  */
 function pandi_GetEPPCode($params)
 {
+    Log::write('--- pandi_GetEPPCode ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1398,6 +1451,9 @@ function pandi_GetEPPCode($params)
  */
 function pandi_ReleaseDomain($params)
 {
+    Log::write('--- pandi_ReleaseDomain ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1447,6 +1503,9 @@ function pandi_ReleaseDomain($params)
  */
 function pandi_RequestDelete($params)
 {
+    Log::write('--- pandi_RequestDelete ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1494,6 +1553,9 @@ function pandi_RequestDelete($params)
  */
 function pandi_RegisterNameserver($params)
 {
+    Log::write('--- pandi_RegisterNameserver ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1547,6 +1609,9 @@ function pandi_RegisterNameserver($params)
  */
 function pandi_ModifyNameserver($params)
 {
+    Log::write('--- pandi_ModifyNameserver ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1600,6 +1665,9 @@ function pandi_ModifyNameserver($params)
  */
 function pandi_DeleteNameserver($params)
 {
+    Log::write('--- pandi_DeleteNameserver ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1653,6 +1721,9 @@ function pandi_DeleteNameserver($params)
  */
 function pandi_Sync($params)
 {
+    Log::write('--- pandi_Sync ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1704,6 +1775,9 @@ function pandi_Sync($params)
  */
 function pandi_TransferSync($params)
 {
+    Log::write('--- pandi_TransferSync ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1760,6 +1834,8 @@ function pandi_TransferSync($params)
  */
 function pandi_ClientAreaCustomButtonArray()
 {
+    Log::write('--- pandi_ClientAreaCustomButtonArray ---');
+
     return array(
         'Push Domain' => 'push',
     );
@@ -1775,6 +1851,8 @@ function pandi_ClientAreaCustomButtonArray()
  */
 function pandi_ClientAreaAllowedFunctions()
 {
+    Log::write('--- pandi_ClientAreaAllowedFunctions ---');
+    
     return array(
         'Push Domain' => 'push',
     );
@@ -1791,6 +1869,9 @@ function pandi_ClientAreaAllowedFunctions()
  */
 function pandi_push($params)
 {
+    Log::write('--- pandi_push ---');
+    Log::write('Params: ' . json_encode($params));
+
     // user defined configuration values
     $userIdentifier = $params['APIUsername'];
     $apiKey = $params['APIKey'];
@@ -1821,6 +1902,9 @@ function pandi_push($params)
  */
 function pandi_ClientArea($params)
 {
+    Log::write('--- pandi_ClientArea ---');
+    Log::write('Params: ' . json_encode($params));
+
     $output = '
         <div class="alert alert-info">
             Your custom HTML output goes here...
@@ -1845,3 +1929,4 @@ function _pandiepp_log($func, $params = false)
 	fwrite($handle, $text);
 	fclose($handle);
 }
+

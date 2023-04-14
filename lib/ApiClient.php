@@ -1,6 +1,6 @@
 <?php
 
-namespace WHMCS\Module\Registrar\Registrarmodule;
+namespace WHMCS\Module\Registrar\Pandi;
 
 /**
  * Sample Registrar Module Simple API Client.
