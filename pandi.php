@@ -41,6 +41,9 @@ use WHMCS\Domains\DomainLookup\SearchResult;
 use WHMCS\Module\Registrar\Pandi\ApiClient;
 use WHMCS\Module\Registrar\Pandi\Log;
 
+// define('BASE_URL', 'http://localhost/pandi/public');
+define('BASE_URL', 'https://staging.ina17.id');
+
 // Require any libraries needed for the module to function.
 // require_once __DIR__ . '/path/to/library/loader.php';
 //
@@ -82,8 +85,25 @@ function pandi_MetaData()
  */
 function pandi_getConfigArray()
 {
-    // _pandiepp_log("Error 123:", "Masuk getConfigArray");
+    Log::write("--- pandi_getConfigArray ---");
 
+    return [
+        // Friendly display name for the module
+        'FriendlyName' => [
+            'Type' => 'System',
+            'Value' => 'Sample Registrar Module for WHMCS',
+        ],
+        // a text field type allows for single line text input
+        'APIKey' => [
+            'FriendlyName' => 'API KEY',
+            'Type' => 'text',
+            'Size' => '25',
+            'Default' => '',
+            'Description' => 'Enter Your API KEY',
+        ],
+    ];
+
+    /*
     return [
         // Friendly display name for the module
         'FriendlyName' => [
@@ -139,6 +159,7 @@ function pandi_getConfigArray()
             'Description' => 'Freeform multi-line text input field',
         ],
     ];
+    */
 }
 
 /**
@@ -157,7 +178,7 @@ function pandi_getConfigArray()
  *
  * @return array
  */
-function pandi_RegisterDomain($params)
+function pandi_RegisterDomain_Old($params)
 {
     Log::write('--- RegisterDomain ---');
     Log::write('Params: ' . json_encode($params));
@@ -310,6 +331,86 @@ function pandi_RegisterDomain($params)
             'error' => $e->getMessage(),
         );
     }
+}
+
+function pandi_RegisterDomain($params)
+{
+    Log::write('--- pandi_RegisterDomain ---');
+    Log::write('Params: ' . json_encode($params));
+
+    $postfields = [
+        "api_key" => $params['APIKey'],
+        "sld" => $params['sld'],
+        "tld" => "." . $params['tld'],
+        "regperiod" => $params['regperiod'],
+        "ns1" => $params['ns1'],
+        "ns2" => $params['ns2'],
+        "ns3" => $params['ns3'],
+        "ns4" => $params['ns4'],
+        "registrant" => [
+            "name" => $params["fullname"],
+            "email" => $params["email"],
+            "phone" => $params["fullphonenumber"],
+            "street" => $params["address1"] . " " . $params["address2"],
+            "city" => $params["city"],
+            "state" => $params["state"],
+            "zip_postal" => $params["postcode"],
+            "country" => $params["countryname"]
+        ],
+        "contact" => [
+            "company_name" => $params["admincompanyname"],
+            "firstname" => $params["adminfirstname"],
+            "lastname" => $params["adminlastname"],
+            "email" => $params["adminemail"],
+            "phone" => $params["adminfullphonenumber"],
+            "street" => $params["adminaddress1"] ." ". $params["adminaddress2"],
+            "city" => $params["admincity"],
+            "state" => $params["adminstate"],
+            "zip_postal" => $params["adminpostcode"],
+            "country" => $params["admincountry"]
+        ]
+    ];
+
+    $curl = curl_init();
+    
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => BASE_URL . '/api/whmcs/order-domain',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'POST',
+      CURLOPT_POSTFIELDS => json_encode($postfields),
+      CURLOPT_HTTPHEADER => array(
+        'Content-Type: application/json'
+      ),
+    ));
+    
+    $response = curl_exec($curl);
+    Log::write($response);
+    
+    curl_close($curl);
+    // echo $response;
+
+    Log::write('Response: ' . $response);
+
+    $responseDecoded = json_decode($response);
+
+    if ($responseDecoded->status == 'success') {
+        Log::write('Response: Success');
+        return ['success' => true];
+    }
+    else {
+        Log::write('Response: Not Success');
+        // return ['error' => $responseDecoded->message];
+        return array(
+            'error' => 'Error Mas...',
+        );
+    }
+
+
 }
 
 /**
@@ -899,7 +1000,7 @@ function pandi_CheckAvailability($params)
     $curl = curl_init();
     
     curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://staging.ina17.id/api/whmcs/check-domain',
+      CURLOPT_URL => BASE_URL . '/api/whmcs/check-domain',
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => '',
       CURLOPT_MAXREDIRS => 10,
